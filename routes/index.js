@@ -9,20 +9,29 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Set up a route home.
 app.get('/', pgMiddleware(async (client, req, res, next) => {
   try {
-    const results = await client.query(`select * from company;`);
+    const results = await client.query(`select * from items_inventory;`);
     res.send({ rows: results.rows });
   } catch (e) {
     console.log('Error: ', e);
   }
 }));
 
+// TODO: Things to note. Are we going to need to pass as a query param
+// when the the user tries to edit and individual record? We should see how that is handled
+// at SRS, and mimic that model for this project.
 app.post('/', pgMiddleware(async (client, req, res, next) => {
   try {
-    // TODO: We would have to see what gets sent to us in the body.
-    // Create a params array, query to insert the new items.
-    // Send back something to the client to let them know that everything is okay.
-    // COMMIT our changes.
-    console.log('some place holder for now');
+    await client.query('BEGIN;');
+    if (req.body) {
+      await client.query(`
+        INSERT INTO items_inventory 
+          items_id, description, qty_on_hand, qty_desired, qty_needed
+         VALUES
+         nextval('items_inventory_item_id_seq'), $1, $2, $3, $4
+      `, [req.body.item.description, req.body.item.qty_on_hand, req.body.item.qty_desired, req.body.item.qty_needed]);
+      await client.query('COMMIT;');
+      res.status(200).send('OK');
+    }
   } catch (err) {
     await client.query('ROLLBACK;');
     res.status(500).send(err);

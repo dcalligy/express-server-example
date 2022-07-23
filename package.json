@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node /home/dilly/projects/express-server/routes/index.js"
+    "start": "node /Users/dilly/projects/express-server-example/routes/index.js"
   },
   "keywords": [],
   "author": "",

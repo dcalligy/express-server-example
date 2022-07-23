@@ -5,7 +5,7 @@ module.exports = {
   conn: {
     host: 'localhost',
     port: 5432,
-    database: 'test',
+    database: 'cupcakes',
     user: 'postgres',
   }
 };
