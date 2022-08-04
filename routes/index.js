@@ -35,7 +35,21 @@ app.post('/', pgMiddleware(async (client, req, res, next) => {
   } catch (err) {
     await client.query('ROLLBACK;');
     res.status(500).send(err);
-    console.log('err: ',err);
+    console.log('err trying to: ',err);
+  }
+}));
+
+app.post('/update/:items_id', pgMiddleware(async (client, req, res, next) => {
+  await client.query('BEGIN;');
+  try {
+    // TODO: We need a query to update the record.
+    // We should only want to do this when we get 
+    // a contact_id.
+    console.log('we should do some updating here.');
+  } catch (e) {
+    await client.query('ROLLBACK;');
+    res.status(500).send(err);
+    console.log('err trying to update: ', err);
   }
 }));
 
