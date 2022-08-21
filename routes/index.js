@@ -5,14 +5,22 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
+// CORS bullshit.
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 // Set up a route home.
 app.get('/', pgMiddleware(async (client, req, res, next) => {
   try {
     const results = await client.query(`select * from items_inventory;`);
-    res.send({ rows: results.rows });
+    res.status(200).send({ rows: results.rows });
   } catch (e) {
     console.log('Error: ', e);
+    res.status(418).send('We a teapot fam');
   }
 }));
 
@@ -24,7 +32,7 @@ app.post('/', pgMiddleware(async (client, req, res, next) => {
     await client.query('BEGIN;');
     if (req.body) {
       await client.query(`
-        INSERT INTO items_inventory 
+        INSERT INTO items_inventory
           items_id, description, qty_on_hand, qty_desired, qty_needed
          VALUES
          nextval('items_inventory_item_id_seq'), $1, $2, $3, $4
