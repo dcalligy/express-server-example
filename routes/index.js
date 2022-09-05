@@ -33,7 +33,7 @@ app.post('/', pgMiddleware(async (client, req, res, next) => {
     if (req.body) {
       await client.query(`
         INSERT INTO items_inventory
-          items_id, description, qty_on_hand, qty_desired, qty_needed
+          (items_id, description, qty_on_hand, qty_desired, qty_needed)
          VALUES
          nextval('items_inventory_item_id_seq'), $1, $2, $3, $4
       `, [req.body.item.description, req.body.item.qty_on_hand, req.body.item.qty_desired, req.body.item.qty_needed]);
@@ -51,7 +51,7 @@ app.post('/update/:items_id', pgMiddleware(async (client, req, res, next) => {
   await client.query('BEGIN;');
   try {
     // TODO: We need a query to update the record.
-    // We should only want to do this when we get 
+    // We should only want to do this when we get
     // a contact_id.
     console.log('we should do some updating here.');
   } catch (e) {
