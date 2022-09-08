@@ -5,6 +5,8 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+
 // CORS bullshit.
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -50,14 +52,26 @@ app.post('/', pgMiddleware(async (client, req, res, next) => {
 app.post('/update/:items_id', pgMiddleware(async (client, req, res, next) => {
   await client.query('BEGIN;');
   try {
-    // TODO: We need a query to update the record.
-    // We should only want to do this when we get
-    // a contact_id.
-    console.log('we should do some updating here.');
+    await client.query('BEGIN;');
+    if (Object.keys(req.body).length > 0) {
+      const rows = client.query(`
+        UPDATE items_inventory SET
+          description = $1,
+          qty_on_hand = $2,
+          qty_desired = $3,
+          qty_needed = $4
+         WHERE items_id = $5;
+      `, [req.body.description, req.body.qty_on_hand, req.body.qty_desired, req.body.qty_needed, parseInt(req.params.items_id)]);
+      await client.query('COMMIT;');
+      res.status(200).send({ results: rows });
+    } else {
+      await client.query('ROLLBACK;')
+      throw new Error('Unexpected update size.');
+    }
   } catch (e) {
     await client.query('ROLLBACK;');
-    res.status(500).send(err);
-    console.log('err trying to update: ', err);
+    console.log('err: ', e);
+    res.status(418).send(e);
   }
 }));
 
