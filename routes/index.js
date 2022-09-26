@@ -29,15 +29,16 @@ app.get('/', pgMiddleware(async (client, req, res, next) => {
 // TODO: Things to note. Are we going to need to pass as a query param
 // when the the user tries to edit and individual record? We should see how that is handled
 // at SRS, and mimic that model for this project.
-app.post('/', pgMiddleware(async (client, req, res, next) => {
+app.post('/add', pgMiddleware(async (client, req, res, next) => {
   try {
+    console.log('req.body: ', req.body);
     await client.query('BEGIN;');
     if (req.body) {
       await client.query(`
         INSERT INTO items_inventory
           (items_id, description, qty_on_hand, qty_desired, qty_needed)
          VALUES
-         nextval('items_inventory_item_id_seq'), $1, $2, $3, $4
+         nextval('items_inventory_items_id_seq'), $1, $2, $3, $4
       `, [req.body.item.description, req.body.item.qty_on_hand, req.body.item.qty_desired, req.body.item.qty_needed]);
       await client.query('COMMIT;');
       res.status(200).send('OK');
