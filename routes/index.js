@@ -39,7 +39,7 @@ app.post('/add', pgMiddleware(async (client, req, res, next) => {
           (items_id, description, qty_on_hand, qty_desired, qty_needed)
          VALUES
          nextval('items_inventory_items_id_seq'), $1, $2, $3, $4
-      `, [req.body.item.description, req.body.item.qty_on_hand, req.body.item.qty_desired, req.body.item.qty_needed]);
+      `, [req.body.description, req.body.qty_on_hand, req.body.qty_desired, req.body.qty_needed]);
       await client.query('COMMIT;');
       res.status(200).send('OK');
     }
