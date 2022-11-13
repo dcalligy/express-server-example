@@ -30,8 +30,10 @@ app.get('/', pgMiddleware(async (client, req, res, next) => {
 // when the the user tries to edit and individual record? We should see how that is handled
 // at SRS, and mimic that model for this project.
 app.post('/add', pgMiddleware(async (client, req, res, next) => {
+  // TODO: We need to find a way to guard around adding items that already exist.
+  // If and item already exist we need to update the individual record instead of
+  // adding the same item multiple times.
   try {
-    console.log('req.body: ', req.body);
     await client.query('BEGIN;');
     if (req.body) {
       await client.query(`
