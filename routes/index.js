@@ -27,11 +27,11 @@ async function checkExist(client, body) {
     `SELECT * FROM items_inventory WHERE description = $1`
   ,[body.description]);
   if (sql && sql.rows.length == 1) {
-    console.log('are we not here?');
     return_obj = {
       item_id: sql.rows[0].items_id,
       found: true,
     }
+    console.log('return_obj: ', return_obj);
   }
   return return_obj;
 }
@@ -47,28 +47,27 @@ app.get('/', pgMiddleware(async (client, req, res, next) => {
   }
 }));
 
-// TODO: Things to note. Are we going to need to pass as a query param
-// when the the user tries to edit and individual record? We should see how that is handled
-// at SRS, and mimic that model for this project.
 app.post('/add', pgMiddleware(async (client, req, res, next) => {
-  // TODO: We need to find a way to guard around adding items that already exist.
-  // If and item already exist we need to update the individual record instead of
-  // adding the same item multiple times.
   try {
     await client.query('BEGIN;');
     const check_exist = await checkExist(client, req.body);
     if (check_exist.found) {
-      console.log('found');
-      await client.query(`
+      // I am not sure why this does not work...
+      console.log('req.body: ', req.body);
+      const sql = await client.query(`
         UPDATE items_inventory
-        SET description = $1, qty_on_hand = $2, qty_desired = $3, qty_needed = $4
+          SET description = $1,
+              qty_on_hand = $2,
+              qty_desired = $3,
+              qty_needed = $4
         WHERE items_id = $5
       `[req.body.description,
         req.body.qty_on_hand,
         req.body.qty_desired,
-        req.body.qty_need,
+        req.body.qty_needed,
         check_exist.item_id
       ]);
+      console.log('sql: ', sql);
     } else {
       console.log('we are in the else block');
       await client.query(`
