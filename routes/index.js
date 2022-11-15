@@ -54,6 +54,7 @@ app.post('/add', pgMiddleware(async (client, req, res, next) => {
     if (check_exist.found) {
       // I am not sure why this does not work...
       console.log('req.body: ', req.body);
+      console.log('typeof: ', typeof check_exist.item_id);
       const sql = await client.query(`
         UPDATE items_inventory
           SET description = $1,
@@ -89,7 +90,6 @@ app.post('/add', pgMiddleware(async (client, req, res, next) => {
 app.post('/update/:items_id', pgMiddleware(async (client, req, res, next) => {
   await client.query('BEGIN;');
   try {
-    await client.query('BEGIN;');
     if (Object.keys(req.body).length > 0) {
       const rows = client.query(`
         UPDATE items_inventory SET
